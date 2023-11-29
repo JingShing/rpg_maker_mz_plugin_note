@@ -1,12 +1,18 @@
+// gold
 function Window_Custom() {
     this.initialize(...arguments);
 }
 
-Window_Custom.prototype = Object.create(Window_Selectable.prototype);
+Window_Custom.prototype = Object.create(Window_Base.prototype);
 Window_Custom.prototype.constructor = Window_Custom;
 
 Window_Custom.prototype.initialize = function(rect) {
-    Window_Selectable.prototype.initialize.call(this, rect);
+    Window_Base.prototype.initialize.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
     this.refresh();
 };
 
@@ -15,10 +21,6 @@ Window_Custom.prototype.colSpacing = function() {
 };
 
 Window_Custom.prototype.refresh = function() {
-    const rect = this.itemLineRect(0);
-    const x = rect.x;
-    const y = rect.y;
-    const width = rect.width;
     this.contents.clear();
     // this.drawCurrencyValue(this.value(), this.currencyUnit(), x, y, width);
     this.drawText(`G: ${this.value()}`, -30, 10, 240, 'right');
