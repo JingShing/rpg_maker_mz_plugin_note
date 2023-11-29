@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:8080",
+            "file": "${workspaceFolder}/index.html?test",
+            "webRoot": "${workspaceFolder}",
+            "runtimeArgs": [
+                // allow access file
+                "--allow-file-access-from-files",
+                // optional can play bgm before loaded game
+                "--autoplay-policy-no-user-gesture-required"
+            ]
+        }
+    ]
+}
