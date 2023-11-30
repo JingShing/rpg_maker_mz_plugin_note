@@ -8,6 +8,8 @@ Window_Custom_Gold.prototype.constructor = Window_Custom_Gold;
 
 Window_Custom_Gold.prototype.initialize = function(rect) {
     Window_Base.prototype.initialize.call(this, rect);
+    // remove outline and background
+    this.opacity = 0;
     this.refresh();
 };
 
