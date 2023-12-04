@@ -1,3 +1,22 @@
+Bitmap.prototype._startLoading = function() {
+    this._image = new Image();
+    this._image.onload = this._onLoad.bind(this);
+    this._image.onerror = this._onError.bind(this);
+    this._destroyCanvas();
+    this._loadingState = "loading";
+    if (Utils.hasEncryptedImages()) {
+        this._startDecrypting();
+    } else {
+        this._image.src = this._url;
+        // fixed browser refresh image display error problem
+        // this problem happens using vscode
+        // if (this._image.width > 0) {
+        //     this._image.onload = null;
+        //     this._onLoad();
+        // }
+    }
+};
+
 // gold window
 function Window_Custom_Gold() {
     this.initialize(...arguments);
@@ -24,11 +43,8 @@ Window_Custom_Gold.prototype.colSpacing = function() {
 
 Window_Custom_Gold.prototype.refresh = function() {
     this.contents.clear();
-    // x = this.x;
-    // y = this.y;
     x = 0;
     y = 0;
-    // this.drawCurrencyValue(this.value(), this.currencyUnit(), x, y, width);
     this.drawText(`G: ${this.value()}`, x, y, 200);
 };
 
@@ -45,25 +61,388 @@ Window_Custom_Gold.prototype.open = function() {
     Window_Selectable.prototype.open.call(this);
 };
 
-//
+// Bag
+function Window_Custom_Bag() {
+    this.initialize(...arguments);
+}
+
+Window_Custom_Bag.prototype = Object.create(Window_Base.prototype);
+Window_Custom_Bag.prototype.constructor = Window_Custom_Bag;
+
+Window_Custom_Bag.prototype.initialize = function(rect) {
+    Window_Base.prototype.initialize.call(this, rect);
+    // remove outline and background
+    this.opacity = 0;
+    this.refresh();
+};
+
+Window_Custom_Bag.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom_Bag.prototype.colSpacing = function() {
+    return 0;
+};
+
+Window_Custom_Bag.prototype.refresh = function() {
+    this.contents.clear();
+    x = 0;
+    y = 0;
+    this.drawText(`BAG: ${this.value()}/${this.max_value()}`, x, y, 200);
+};
+
+Window_Custom_Bag.prototype.max_value = function() {
+    return 10;
+};
+
+Window_Custom_Bag.prototype.value = function() {
+    return 0;
+};
+
+Window_Custom_Bag.prototype.open = function() {
+    this.refresh();
+    Window_Selectable.prototype.open.call(this);
+};
+
+// hp
+function Window_Custom_Hp() {
+    this.initialize(...arguments);
+}
+
+Window_Custom_Hp.prototype = Object.create(Window_Base.prototype);
+Window_Custom_Hp.prototype.constructor = Window_Custom_Hp;
+
+Window_Custom_Hp.prototype.initialize = function(rect) {
+    Window_Base.prototype.initialize.call(this, rect);
+    // remove outline and background
+    this.opacity = 0;
+    Window_Custom_Hp.last_hp = this.value();
+    this.refresh();
+};
+
+Window_Custom_Hp.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom_Hp.prototype.colSpacing = function() {
+    return 0;
+};
+
+var now_hp = 0;
+Window_Custom_Hp.prototype.refresh = function() {
+    // get hurt exp
+    now_hp = this.value();
+    this.contents.clear();
+    x = 0;
+    y = 0;
+    this.drawText(`HP: ${now_hp}/${this.max_value()}`, x, y, 200);
+    // Window_Custom_Hp.last_hp = now_hp;
+};
+
+Window_Custom_Hp.prototype.max_value = function() {
+    return $gameActors._data[1].mhp;
+};
+
+Window_Custom_Hp.prototype.value = function() {
+    return $gameActors._data[1]._hp;
+};
+
+Window_Custom_Hp.prototype.open = function() {
+    this.refresh();
+    Window_Selectable.prototype.open.call(this);
+};
+
+// level
+function Window_Custom_Level() {
+    this.initialize(...arguments);
+}
+
+Window_Custom_Level.prototype = Object.create(Window_Base.prototype);
+Window_Custom_Level.prototype.constructor = Window_Custom_Level;
+
+Window_Custom_Level.prototype.initialize = function(rect) {
+    Window_Base.prototype.initialize.call(this, rect);
+    // remove outline and background
+    this.opacity = 0;
+    this.refresh();
+};
+
+Window_Custom_Level.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom_Level.prototype.colSpacing = function() {
+    return 0;
+};
+
+Window_Custom_Level.prototype.refresh = function() {
+    this.contents.clear();
+    x = 0;
+    y = 60;
+    this.contents.fontSize = 60;
+    this.drawText(`${this.value()}/${this.max_value()}`, x, y, 200);
+};
+
+Window_Custom_Level.prototype.max_value = function() {
+    return $gameActors._data[1].maxLevel();
+};
+
+Window_Custom_Level.prototype.value = function() {
+    return $gameActors._data[1].level;
+};
+
+Window_Custom_Level.prototype.open = function() {
+    this.refresh();
+    Window_Selectable.prototype.open.call(this);
+};
+
+// EXP
+// give exp
+// Window_Custom_Exp.gainExp(Window_Custom_Exp.exp_get_value);
+// exp value
+// Window_Custom_Exp.exp_get_value = exp_value;
+function Window_Custom_Exp() {
+    this.initialize(...arguments);
+}
+
+Window_Custom_Exp.prototype = Object.create(Window_Base.prototype);
+Window_Custom_Exp.prototype.constructor = Window_Custom_Exp;
+Window_Custom_Exp.exp_get_value = 10;
+Window_Custom_Exp.prototype.initialize = function(rect) {
+    Window_Base.prototype.initialize.call(this, rect);
+    // remove outline and background
+    this.opacity = 0;
+    this.refresh();
+};
+
+Window_Custom_Exp.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom_Exp.prototype.colSpacing = function() {
+    return 0;
+};
+
+Window_Custom_Exp.prototype.refresh = function() {
+    this.contents.clear();
+    x = 0;
+    y = 0;
+    this.drawText(`Exp: ${this.value()}/${this.max_value()}`, x, y, 200);
+};
+
+Window_Custom_Exp.prototype.max_value = function() {
+    return $gameActors._data[1].expForLevel($gameActors._data[1].level+1);
+};
+
+Window_Custom_Exp.prototype.value = function() {
+    // return $gameActors._data[1]._exp[$gameActors._data[1].level];
+    return $gameActors._data[1]._exp[1];
+};
+
+Window_Custom_Exp.prototype.open = function(){
+    this.refresh();
+    Window_Selectable.prototype.open.call(this);
+};
+
+Window_Custom_Exp.gainExp = function(exp){
+    $gameActors._data[1].gainExp(exp);
+}
+
+// status window
+function Window_Custom_Status() {
+    this.initialize(...arguments);
+}
+
+Window_Custom_Status.prototype = Object.create(Window_Base.prototype);
+Window_Custom_Status.prototype.constructor = Window_Custom_Status;
+
+Window_Custom_Status.prototype.initialize = function(rect) {
+    Window_Base.prototype.initialize.call(this, rect);
+    // remove outline and background
+    this.opacity = 0;
+    this.refresh();
+};
+
+Window_Custom_Status.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom_Status.prototype.colSpacing = function() {
+    return 0;
+};
+
+Window_Custom_Status.prototype.refresh = function() {
+    this.contents.clear();
+    x = 0;
+    y = 0;
+    text_interval = 45;
+    this.drawText(`STR: ${this.str()}`, x, y, 200);
+    this.drawText(`AGI: ${this.agi()}`, x, y+text_interval*1, 200);
+    this.drawText(`VIT: ${this.vit()}`, x, y+text_interval*2, 200);
+    this.drawText(`LUK: ${this.luk()}`, x, y+text_interval*3, 200);
+    this.drawText(`OVARY: ${this.ovary()}`, x, y+text_interval*4, 200);
+};
+
+Window_Custom_Status.prototype.str = function() {
+    return $gameActors._data[1].atk;
+};
+Window_Custom_Status.prototype.agi = function() {
+    return $gameActors._data[1].agi;
+};
+Window_Custom_Status.prototype.vit = function() {
+    return $gameActors._data[1].def;
+};
+Window_Custom_Status.prototype.luk = function() {
+    return $gameActors._data[1].luk;
+};
+Window_Custom_Status.prototype.ovary = function() {
+    return $gameActors._data[1].maxLevel();
+};
+
+Window_Custom_Status.prototype.open = function() {
+    this.refresh();
+    Window_Selectable.prototype.open.call(this);
+};
+
+// steps window
+function Window_Custom_Steps() {
+    this.initialize(...arguments);
+}
+
+Window_Custom_Steps.prototype = Object.create(Window_Base.prototype);
+Window_Custom_Steps.prototype.constructor = Window_Custom_Steps;
+
+Window_Custom_Steps.prototype.initialize = function(rect) {
+    Window_Base.prototype.initialize.call(this, rect);
+    // remove outline and background
+    this.steps = 0;
+    this.opacity = 0;
+    this.refresh();
+};
+
+Window_Custom_Steps.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom_Steps.prototype.colSpacing = function() {
+    return 0;
+};
+
+Window_Custom_Steps.last_steps = 0;
+Window_Custom_Steps.prototype.refresh = function() {
+    this.contents.clear();
+    // step exp
+    var now_step = this.value();
+    var gain_exp = now_step - Window_Custom_Steps.last_steps;
+    if(gain_exp<0)gain_exp=0;
+    $gameActors._data[1].gainExp(Window_Custom_Exp.exp_get_value * gain_exp);
+    x = 0;
+    y = 0;
+    this.drawText(`STEPS: ${now_step}`, x, y, 200);
+    Window_Custom_Steps.last_steps = now_step;
+};
+
+Window_Custom_Steps.prototype.value = function(){
+    return $gameParty._steps;
+}
+
+Window_Custom_Steps.prototype.open = function() {
+    this.refresh();
+    Window_Selectable.prototype.open.call(this);
+};
 
 
+// battle log edit
+// SceneManager._scene._logWindow.addText(`受傷得到 ${Window_Custom_Exp.exp_get_value} exp`);
+// Window_BattleLog.prototype.refresh = function() {
+//     now_hp = $gameActors._data[1]._hp;
+//     if($gameParty.inBattle() && Window_Custom_Hp.last_hp > now_hp){
+//         $gameActors._data[1].gainExp(Window_Custom_Exp.exp_get_value);
+//         this.addText(`受傷得到 ${Window_Custom_Exp.exp_get_value} exp`);
+//         Window_Custom_Hp.last_hp = $gameActors._data[1]._hp;
+//         wait();
+//     }
+
+//     this.drawBackground();
+//     this.contents.clear();
+//     for (let i = 0; i < this._lines.length; i++) {
+//         this.drawLineText(i);
+//     }
+// };
 
 // map scene start
 const map_long_scene_start = Scene_Map.prototype.start;
 Scene_Map.prototype.start = function() {
     map_long_scene_start.call(this);
 
-
     // gold window
-    x = 500;
-    y = 10;
-    this.custom_money_window_instance = new Window_Custom_Gold(new Rectangle(x, y, 200, 69, 1));
-    // this.custom_money_window_instance2 = new Window_Custom_Gold(new Rectangle(x, y, 200, 69, 1));
-    // this.addChild(this.custom_money_window_instance2);
+    gold_window_x = 1360;
+    gold_window_y = 60;
+    this.custom_money_window_instance = new Window_Custom_Gold(new Rectangle(gold_window_x, gold_window_y, 200, 69, 1));
     this.addChild(this.custom_money_window_instance);
+    // bag window
+    bag_window_x = 1060;
+    bag_window_y = 60;
+    this.custom_bag_window_instance = new Window_Custom_Bag(new Rectangle(bag_window_x, bag_window_y, 200, 69, 1));
+    this.addChild(this.custom_bag_window_instance);
+    // hp window
+    bag_window_x = 760;
+    bag_window_y = 60;
+    this.custom_hp_window_instance = new Window_Custom_Hp(new Rectangle(bag_window_x, bag_window_y, 200, 69, 1));
+    this.addChild(this.custom_hp_window_instance);
+    // level window
+    bag_window_x = 460;
+    bag_window_y = 0;
+    this.custom_level_window_instance = new Window_Custom_Level(new Rectangle(bag_window_x, bag_window_y, 500, 169, 1));
+    this.addChild(this.custom_level_window_instance);
+    // exp window
+    bag_window_x = 460;
+    bag_window_y = 150;
+    this.custom_exp_window_instance = new Window_Custom_Exp(new Rectangle(bag_window_x, bag_window_y, 400, 69, 1));
+    this.addChild(this.custom_exp_window_instance);
+    // status window
+    bag_window_x = 790;
+    bag_window_y = 650;
+    this.custom_status_window_instance = new Window_Custom_Status(new Rectangle(bag_window_x, bag_window_y, 180, 240, 1));
+    this.addChild(this.custom_status_window_instance);
+    // steps window
+    bag_window_x = 700;
+    bag_window_y = 150;
+    this.custom_steps_window_instance = new Window_Custom_Steps(new Rectangle(bag_window_x, bag_window_y, 180, 240, 1));
+    this.addChild(this.custom_steps_window_instance);
 };
-
+// close ui
+// SceneManager._scene.custom_ui_open()
+Scene_Map.prototype.custom_ui_close = function() {
+    var ui_view_value = 0;
+    this.custom_money_window_instance.alpha = ui_view_value;
+    this.custom_bag_window_instance.alpha = ui_view_value;
+    this.custom_hp_window_instance.alpha = ui_view_value;
+    this.custom_level_window_instance.alpha = ui_view_value;
+    this.custom_exp_window_instance.alpha = ui_view_value;
+    this.custom_status_window_instance.alpha = ui_view_value;
+    this.custom_steps_window_instance.alpha = ui_view_value;
+    this.custom_steps_window_instance.alpha = ui_view_value;
+}
+// open ui
+// SceneManager._scene.custom_ui_close()
+Scene_Map.prototype.custom_ui_open = function() {
+    var ui_view_value = 1;
+    this.custom_money_window_instance.alpha = ui_view_value;
+    this.custom_bag_window_instance.alpha = ui_view_value;
+    this.custom_hp_window_instance.alpha = ui_view_value;
+    this.custom_level_window_instance.alpha = ui_view_value;
+    this.custom_exp_window_instance.alpha = ui_view_value;
+    this.custom_status_window_instance.alpha = ui_view_value;
+    this.custom_steps_window_instance.alpha = ui_view_value;
+    this.custom_steps_window_instance.alpha = ui_view_value;
+}
 // Window_Base.prototype.drawCurrencyValue = function(value, unit, x, y, width) {
 //     const unitWidth = Math.min(80, this.textWidth(unit));
 //     this.resetTextColor();
@@ -71,3 +450,6 @@ Scene_Map.prototype.start = function() {
 //     this.changeTextColor(ColorManager.systemColor());
 //     this.drawText(unit, x + width - unitWidth, y, unitWidth, "right");
 // };
+
+// $gameActors._data[1].maxLevel()
+// $gameActors._data[1]._level
