@@ -1,3 +1,38 @@
+//=============================================================================
+// RPG Maker MZ - Custom Log Window
+//=============================================================================
+
+/*:
+ * @target MZ
+ * @plugindesc Displays text in log.
+ * @author JingShing
+ *
+ * @help CustomLogWindow.js
+ *
+ * # command set
+ * ## ui open and close
+ * open ui:
+ * SceneManager._scene.custom_ui_open()
+ * close ui:
+ * SceneManager._scene.custom_ui_close()
+ * 
+ * ## exp command
+ * edit exp you want to give:
+ * Window_Custom_Exp.exp_get_value = exp_you_want_to_give;
+ * give exp:
+ * Window_Custom_Exp.gainExp(Window_Custom_Exp.exp_get_value);
+ * 
+ * ## distance to goal
+ * edit goal distance:
+ * Window_Custom_Steps.goal_range = distance;
+ * detect if is to goal:
+ * Window_Custom_Steps.is_goal()
+ * 
+ * ## Log
+ * Window_Custom_Log.add_new_text("log test")
+ */
+
+// this is helping coding test with cache error
 Bitmap.prototype._startLoading = function() {
     this._image = new Image();
     this._image.onload = this._onLoad.bind(this);
@@ -335,16 +370,34 @@ Window_Custom_Steps.prototype.colSpacing = function() {
 };
 
 Window_Custom_Steps.last_steps = 0;
+Window_Custom_Steps.goal_range = 100;
+Window_Custom_Steps.step_rate = 1;
+Window_Custom_Steps.is_step = function(now_step){
+    var step_diff = now_step - Window_Custom_Steps.last_steps;
+    if(step_diff>0){
+        return true;
+    }
+    return false;
+}
+Window_Custom_Steps.is_goal = function(){
+    if(Window_Custom_Steps.goal_range<=0){
+        return true;
+    }
+    return false;
+}
 Window_Custom_Steps.prototype.refresh = function() {
     this.contents.clear();
     // step exp
     var now_step = this.value();
-    var gain_exp = now_step - Window_Custom_Steps.last_steps;
-    if(gain_exp<0)gain_exp=0;
-    $gameActors._data[1].gainExp(Window_Custom_Exp.exp_get_value * gain_exp);
+    // var gain_exp = now_step - Window_Custom_Steps.last_steps;
+    if(Window_Custom_Steps.is_step(now_step)){
+        $gameActors._data[1].gainExp(Window_Custom_Exp.exp_get_value);
+        Window_Custom_Steps.goal_range-=Window_Custom_Steps.step_rate;
+    }
     x = 0;
     y = 0;
-    this.drawText(`STEPS: ${now_step}`, x, y, 200);
+    // this.drawText(`STEPS: ${now_step}`, x, y, 200);
+    this.drawText(`Goal: ${Window_Custom_Steps.goal_range}m`, x, y, 200);
     Window_Custom_Steps.last_steps = now_step;
 };
 
@@ -356,7 +409,6 @@ Window_Custom_Steps.prototype.open = function() {
     this.refresh();
     Window_Selectable.prototype.open.call(this);
 };
-
 
 // battle log edit
 // SceneManager._scene._logWindow.addText(`受傷得到 ${Window_Custom_Exp.exp_get_value} exp`);
@@ -375,6 +427,62 @@ Window_Custom_Steps.prototype.open = function() {
 //         this.drawLineText(i);
 //     }
 // };
+
+
+// log
+var custom_log_lines = []
+function Window_Custom_Log() {
+    this.initialize(...arguments);
+}
+
+Window_Custom_Log.prototype = Object.create(Window_Base.prototype);
+Window_Custom_Log.prototype.constructor = Window_Custom_Log;
+
+Window_Custom_Log.prototype.initialize = function(rect) {
+    Window_Base.prototype.initialize.call(this, rect);
+    this.lines_len = 7;
+    // custom_log_lines = ["test", "AAAAAAA", "BBBBBBB", "CCCCCC", "DDDDDD", "EEEEEE", "FFFFFF"];
+    // remove outline and background
+    // this.opacity = 0;
+    this.refresh();
+};
+
+Window_Custom_Log.prototype.update = function(rect) {
+    Window_Base.prototype.update.call(this, rect);
+    this.refresh();
+};
+
+Window_Custom_Log.prototype.colSpacing = function() {
+    return 0;
+};
+
+Window_Custom_Log.prototype.refresh = function() {
+    this.contents.clear();
+    x = 0;
+    y = 0;
+    interval = 30;
+    this.contents.paintOpacity = 255;
+    for(const i in  custom_log_lines){
+        if (i<this.lines_len){
+            this.drawText(custom_log_lines[i], x, y+170-interval*i, 200);
+            this.contents.paintOpacity -= 30;
+            // if(i==1)this.contents.textColor = "red";
+        }
+    }
+};
+
+Window_Custom_Log.add_new_text = function(new_text) {
+    custom_log_lines.splice(0, 0, new_text);
+    while(custom_log_lines.length>this.lines_len){
+        custom_log_lines.pop();
+    }
+    // console.log(custom_log_lines);
+}
+
+Window_Custom_Log.prototype.open = function() {
+    this.refresh();
+    Window_Selectable.prototype.open.call(this);
+};
 
 // map scene start
 const map_long_scene_start = Scene_Map.prototype.start;
@@ -412,10 +520,15 @@ Scene_Map.prototype.start = function() {
     this.custom_status_window_instance = new Window_Custom_Status(new Rectangle(bag_window_x, bag_window_y, 180, 240, 1));
     this.addChild(this.custom_status_window_instance);
     // steps window
-    bag_window_x = 700;
+    bag_window_x = 760;
     bag_window_y = 150;
     this.custom_steps_window_instance = new Window_Custom_Steps(new Rectangle(bag_window_x, bag_window_y, 180, 240, 1));
     this.addChild(this.custom_steps_window_instance);
+    // log window
+    log_x = 1250;
+    log_y = 670;
+    this.custom_log_window_instance = new Window_Custom_Log(new Rectangle(log_x, log_y, 350, 230, 1));
+    this.addChild(this.custom_log_window_instance);
 };
 // close ui
 // SceneManager._scene.custom_ui_open()
@@ -429,6 +542,7 @@ Scene_Map.prototype.custom_ui_close = function() {
     this.custom_status_window_instance.alpha = ui_view_value;
     this.custom_steps_window_instance.alpha = ui_view_value;
     this.custom_steps_window_instance.alpha = ui_view_value;
+    this.custom_log_window_instance.alpha = ui_view_value;
 }
 // open ui
 // SceneManager._scene.custom_ui_close()
@@ -442,6 +556,7 @@ Scene_Map.prototype.custom_ui_open = function() {
     this.custom_status_window_instance.alpha = ui_view_value;
     this.custom_steps_window_instance.alpha = ui_view_value;
     this.custom_steps_window_instance.alpha = ui_view_value;
+    this.custom_log_window_instance.alpha = ui_view_value;
 }
 // Window_Base.prototype.drawCurrencyValue = function(value, unit, x, y, width) {
 //     const unitWidth = Math.min(80, this.textWidth(unit));
