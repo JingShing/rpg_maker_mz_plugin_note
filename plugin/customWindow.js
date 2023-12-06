@@ -52,6 +52,7 @@ Bitmap.prototype._startLoading = function() {
     }
 };
 
+// font manager
 const font_manager_start = Scene_Boot.prototype.loadGameFonts;
 Scene_Boot.prototype.loadGameFonts = function() {
     font_manager_start.call(this);
