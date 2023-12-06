@@ -17,6 +17,24 @@ SceneManager._scene
 
 $gamePlayer.isMoving()
 
+
+# 字體自訂JS
+// font manager
+const font_manager_start = Scene_Boot.prototype.loadGameFonts;
+Scene_Boot.prototype.loadGameFonts = function() {
+    font_manager_start.call(this);
+    // const advanced = $dataSystem.advanced;
+    // FontManager.load("rmmz-mainfont", advanced.mainFontFilename);
+
+    // need to put font into fonts folder
+    // ttf, woff, otf
+    var custom_font_name = "custom_font.ttf";
+    FontManager.load("custom_font", custom_font_name);
+};
+
+// custom font
+this.contents.fontFace = "custom_font";
+
 # 指令集
 ## ui 關閉開啟
 開啟 ui
