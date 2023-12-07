@@ -19,6 +19,7 @@ $gamePlayer.isMoving()
 
 
 # 字體自訂JS
+```js
 // font manager
 const font_manager_start = Scene_Boot.prototype.loadGameFonts;
 Scene_Boot.prototype.loadGameFonts = function() {
@@ -31,6 +32,7 @@ Scene_Boot.prototype.loadGameFonts = function() {
     var custom_font_name = "custom_font.ttf";
     FontManager.load("custom_font", custom_font_name);
 };
+```
 
 // custom font
 this.contents.fontFace = "custom_font";
@@ -46,11 +48,21 @@ SceneManager._scene.custom_ui_close()
 Window_Custom_Exp.exp_get_value = 要給的經驗值數量;
 Window_Custom_Exp.gainExp(Window_Custom_Exp.exp_get_value);
 
+## level 等級
+判斷升級
+Window_Custom_Level.is_level_up()
+
 ## 距離
 改距離
 Window_Custom_Steps.goal_range = 距離;
 判斷有沒有到達目標
+> 預設是判斷距離<=0時，即到達終點
 Window_Custom_Steps.is_goal()
+> 可以放入距離的具體數字，判斷有沒有到特定距離
+Window_Custom_Steps.is_goal(距離)
 
 ## Log
 Window_Custom_Log.add_new_text("log記錄")
+
+## 字體
+把字體包放到 fonts 資料夾
