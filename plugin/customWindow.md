@@ -34,7 +34,7 @@ Scene_Boot.prototype.loadGameFonts = function() {
 };
 ```
 
-// custom font
+> custom font
 this.contents.fontFace = "custom_font";
 
 # 指令集
