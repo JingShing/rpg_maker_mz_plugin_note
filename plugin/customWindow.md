@@ -56,9 +56,13 @@ Window_Custom_Level.is_level_up()
 改距離
 Window_Custom_Steps.goal_range = 距離;
 判斷有沒有到達目標
+
 > 預設是判斷距離<=0時，即到達終點
+
 Window_Custom_Steps.is_goal()
+
 > 可以放入距離的具體數字，判斷有沒有到特定距離
+
 Window_Custom_Steps.is_goal(距離)
 
 ## Log
