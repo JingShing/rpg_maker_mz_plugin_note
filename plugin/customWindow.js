@@ -210,10 +210,12 @@ function Window_Custom_Level() {
 Window_Custom_Level.prototype = Object.create(Window_Base.prototype);
 Window_Custom_Level.prototype.constructor = Window_Custom_Level;
 
+Window_Custom_Level.last_level = 0;
 Window_Custom_Level.prototype.initialize = function(rect) {
     Window_Base.prototype.initialize.call(this, rect);
     // remove outline and background
     this.opacity = 0;
+    Window_Custom_Level.last_level = this.value();
     this.refresh();
 };
 
@@ -245,6 +247,17 @@ Window_Custom_Level.prototype.value = function() {
 Window_Custom_Level.prototype.open = function() {
     this.refresh();
     Window_Selectable.prototype.open.call(this);
+};
+
+// detect if is level up
+Window_Custom_Level.is_level_up = function() {
+    if($gameActors._data[1].level > Window_Custom_Level.last_level){
+        // console.log("level up");
+        Window_Custom_Level.last_level = $gameActors._data[1].level;
+        return true;
+    }
+    Window_Custom_Level.last_level = $gameActors._data[1].level;
+    return false;
 };
 
 // EXP
@@ -283,12 +296,13 @@ Window_Custom_Exp.prototype.refresh = function() {
 };
 
 Window_Custom_Exp.prototype.max_value = function() {
-    return $gameActors._data[1].expForLevel($gameActors._data[1].level+1);
+    // return $gameActors._data[1].expForLevel($gameActors._data[1].level+1);
+    return $gameActors._data[1].nextLevelExp();
 };
 
 Window_Custom_Exp.prototype.value = function() {
     // return $gameActors._data[1]._exp[$gameActors._data[1].level];
-    return $gameActors._data[1]._exp[1];
+    return $gameActors._data[1].currentExp();
 };
 
 Window_Custom_Exp.prototype.open = function(){
@@ -296,6 +310,7 @@ Window_Custom_Exp.prototype.open = function(){
     Window_Selectable.prototype.open.call(this);
 };
 
+// give exp
 Window_Custom_Exp.gainExp = function(exp){
     $gameActors._data[1].gainExp(exp);
 }
@@ -393,8 +408,8 @@ Window_Custom_Steps.is_step = function(now_step){
     return false;
 }
 // distance to goal
-Window_Custom_Steps.is_goal = function(){
-    if(Window_Custom_Steps.goal_range<=0){
+Window_Custom_Steps.is_goal = function(distance=0){
+    if(Window_Custom_Steps.goal_range<=distance){
         return true;
     }
     return false;
